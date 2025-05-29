@@ -1,34 +1,91 @@
-Assignment: API Feature Implementation for Order Management System
-Overview
-You'll be adding features to a provided .NET 8 Web API project that simulates an order management system. The assessment focuses on your ability to implement, test, and document solutions efficiently within the existing architecture.
-Requirements
 
-Feature Implementation (60-70 minutes)
+# 📦 OrderManagement API & Services Documentation
 
-Add a discounting system that applies different promotion rules based on customer segments and order history
-Implement an order status tracking feature with appropriate state transitions
-Create an endpoint that returns order analytics (e.g., average value, fulfillment time)
+## 📘 API Overview
 
+### GET `/api/Orders/analytics`
 
-Testing (30-40 minutes)
+Retrieves analytics data for all orders in the system.
 
-Write unit tests for the discount calculation logic
-Include integration tests for at least one API endpoint
+This endpoint returns useful metrics such as **average order value** and **average fulfillment time**.
 
+#### 🔖 Tags
+- `Orders`
 
-Documentation & Optimization (20 minutes)
+#### ✅ Response
 
-Document your API changes using Swagger/OpenAPI annotations
-Identify and implement at least one performance optimization
+**200 OK**
 
+Returns a JSON object with analytics data.
 
-Evaluation Criteria
+##### Content Types:
+- `application/json`
+- `text/json`
+- `text/plain`
 
-Code quality and organization
-Proper implementation of .NET design patterns
-Testing approach and coverage
-API design and documentation
-Performance considerations
+##### 📐 Schema: `OrderAnalyticsDto`
 
-Submission
-Submit your completed project as a GitHub repository link, including a brief README explaining your approach and any assumptions made.
+| Property                        | Type    | Format | Description                                  |
+|--------------------------------|---------|--------|----------------------------------------------|
+| `averageOrderValue`            | number  | double | The average value of all completed orders    |
+| `averageFulfillmentTimeInHours`| number  | double | The average time (in hours) to fulfill orders|
+
+##### 📦 Sample Response
+```json
+{
+  "averageOrderValue": 125.50,
+  "averageFulfillmentTimeInHours": 4.2
+}
+```
+
+---
+
+## 🛠️ `OrderService` Class
+
+### Constructor
+
+```csharp
+public OrderService(ILoyalityService loyalityService, IDiscountService discountService)
+```
+Initializes a new instance of the `OrderService` class with injected dependencies.
+
+#### Parameters:
+- `ILoyalityService loyalityService`: A service that classifies customers into segments (e.g., New, Regular, Loyal, VIP) based on their order history.
+- `IDiscountService discountService`: A service that calculates and applies appropriate discounts based on the customer segment.
+
+---
+
+### Method: `HandleOrder`
+
+```csharp
+public async Task<Order> HandleOrder(Order order)
+```
+
+Processes the given order by evaluating the customer's segment and applying a relevant discount.
+
+#### Parameters:
+- `Order order`: The order to be handled. It includes the `CustomerId` and the original `TotalAmount`.
+
+#### Returns:
+- `Order`: The updated order with the final discounted `TotalAmount`.
+
+#### Workflow:
+1. Retrieves the customer's segment using the `ILoyalityService.Calculate()` method.
+2. Applies a discount using the `IDiscountService.ApplyDiscount()` method based on the customer's segment.
+3. Updates the order's total amount with the discounted value.
+4. Returns the updated order.
+
+#### Example Usage:
+```csharp
+var order = new Order { CustomerId = 123, TotalAmount = 200.00M };
+var processedOrder = await orderService.HandleOrder(order);
+Console.WriteLine(processedOrder.TotalAmount); // e.g., 180.00 if discount applied
+```
+
+---
+
+## 🛡️ Notes
+- The service follows best practices in dependency injection.
+- Easily testable and extensible with additional business rules.
+- Helps maintain separation of concerns (loyalty logic vs. discount logic).
+
