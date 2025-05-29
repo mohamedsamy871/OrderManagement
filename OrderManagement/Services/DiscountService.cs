@@ -13,9 +13,9 @@ namespace OrderManagement.Services
         {
             var discount = segment switch
             {
-                CustomerSegment.VIP => 0.15m,   // 15% discount
-                CustomerSegment.Loyal => 0.10m, // 10% discount
-                CustomerSegment.New => 0.05m, // 5% discount
+                CustomerSegment.VIP => 0.15m,  
+                CustomerSegment.Loyal => 0.10m, 
+                CustomerSegment.New => 0.05m, 
                 _ => 0.00m
             };
 
